@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 // MongoDB Atlas connection string - replace with your actual connection string
-const MONGODB_URI = 'mongodb+srv://'
+const MONGODB_URI = 'mongodb+srv://gatepass-admin:qwerty12345@gatepass-management.lk0agsu.mongodb.net/gate-pass-system?retryWrites=true&w=majority&appName=Gatepass-management';
+
 // User schemas (simplified versions)
 const userSchema = new mongoose.Schema({
   name: String,
@@ -37,24 +38,34 @@ async function setupUsers() {
     await User.deleteMany({});
     console.log('Cleared existing users');
 
-    // Create users
-    const users = [
-      {
-        name: 'John Student',
-        email: 'student@gmail.com',
-        password: 'password123',
-        role: 'student',
-        department: 'Computer Science',
-        studentId: 'CS001'
-      },
-      {
-        name: 'Jane Advisor',
-        email: 'advisor@gmail.com',
-        password: 'password123',
-        role: 'advisor',
-        department: 'Computer Science',
-        assignedStudents: ['CS001']
-      },
+    // Create student first
+    const student = new User({
+      name: 'John Student',
+      email: 'student@gmail.com',
+      password: 'password123',
+      role: 'student',
+      department: 'Computer Science',
+      studentId: 'CS001'
+    });
+    
+    await student.save();
+    console.log('Created student:', student.name);
+
+    // Create advisor with reference to student
+    const advisor = new User({
+      name: 'Jane Advisor',
+      email: 'advisor@gmail.com',
+      password: 'password123',
+      role: 'advisor',
+      department: 'Computer Science',
+      assignedStudents: [student._id.toString()] // Link to student's ObjectId
+    });
+    
+    await advisor.save();
+    console.log('Created advisor:', advisor.name, 'with assigned student:', student._id);
+
+    // Create other users
+    const otherUsers = [
       {
         name: 'Bob HOD',
         email: 'hod@gmail.com',
@@ -78,7 +89,7 @@ async function setupUsers() {
       }
     ];
 
-    for (const userData of users) {
+    for (const userData of otherUsers) {
       const user = new User(userData);
       await user.save();
       console.log(`Created user: ${userData.name} (${userData.role})`);
@@ -91,6 +102,8 @@ async function setupUsers() {
     console.log('HOD: hod@gmail.com / password123');
     console.log('Warden: warden@gmail.com / password123');
     console.log('Guard: guard@gmail.com / password123');
+    console.log('\nAdvisor-Student Relationship:');
+    console.log(`Advisor ${advisor.name} is assigned to student ${student.name} (ID: ${student._id})`);
 
   } catch (error) {
     console.error('Error setting up users:', error);
