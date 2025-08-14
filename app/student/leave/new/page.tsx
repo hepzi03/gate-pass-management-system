@@ -25,6 +25,9 @@ export default function NewLeaveRequestPage() {
     attachment: ''
   })
 
+  // Get today's date in YYYY-MM-DD format
+  const today = new Date().toISOString().split('T')[0]
+
   if (status === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -46,6 +49,39 @@ export default function NewLeaveRequestPage() {
     setIsLoading(true)
 
     try {
+      // Validate dates before sending
+      if (!formData.fromDate || !formData.toDate) {
+        toast({
+          title: 'Validation Error',
+          description: 'Please select both from and to dates',
+          variant: 'destructive',
+        })
+        setIsLoading(false)
+        return
+      }
+
+      if (new Date(formData.fromDate) < new Date(today)) {
+        toast({
+          title: 'Validation Error',
+          description: 'From date cannot be in the past',
+          variant: 'destructive',
+        })
+        setIsLoading(false)
+        return
+      }
+
+      if (new Date(formData.toDate) <= new Date(formData.fromDate)) {
+        toast({
+          title: 'Validation Error',
+          description: 'To date must be after from date',
+          variant: 'destructive',
+        })
+        setIsLoading(false)
+        return
+      }
+
+      console.log('Submitting form data:', formData)
+
       const response = await fetch('/api/student/leave-requests', {
         method: 'POST',
         headers: {
@@ -62,13 +98,15 @@ export default function NewLeaveRequestPage() {
         router.push('/student/dashboard')
       } else {
         const error = await response.json()
+        console.error('Server error:', error)
         toast({
           title: 'Error',
-          description: error.message || 'Failed to submit leave request',
+          description: error.error || error.message || 'Failed to submit leave request',
           variant: 'destructive',
         })
       }
     } catch (error) {
+      console.error('Client error:', error)
       toast({
         title: 'Error',
         description: 'An unexpected error occurred',
@@ -118,7 +156,7 @@ export default function NewLeaveRequestPage() {
                     value={formData.fromDate}
                     onChange={handleInputChange}
                     required
-                    min={new Date().toISOString().split('T')[0]}
+                    min={today}
                   />
                 </div>
                 <div>
@@ -132,7 +170,7 @@ export default function NewLeaveRequestPage() {
                     value={formData.toDate}
                     onChange={handleInputChange}
                     required
-                    min={formData.fromDate || new Date().toISOString().split('T')[0]}
+                    min={formData.fromDate || today}
                   />
                 </div>
               </div>
