@@ -6,6 +6,9 @@ if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable inside .env.local or Vercel environment variables')
 }
 
+// At this point, MONGODB_URI is guaranteed to be a string
+const MONGODB_URI_STRING: string = MONGODB_URI
+
 interface Cached {
   conn: typeof mongoose | null
   promise: Promise<typeof mongoose> | null
@@ -31,7 +34,7 @@ async function dbConnect() {
       bufferCommands: false,
     }
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+    cached.promise = mongoose.connect(MONGODB_URI_STRING, opts).then((mongoose) => {
       return mongoose
     })
   }
