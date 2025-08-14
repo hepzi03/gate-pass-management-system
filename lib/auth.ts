@@ -13,24 +13,32 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
+          console.log('Auth: Missing credentials')
           return null
         }
 
         try {
+          console.log('Auth: Attempting database connection...')
           await dbConnect()
+          console.log('Auth: Database connected successfully')
           
+          console.log('Auth: Looking for user with email:', credentials.email)
           const user = await User.findOne({ email: credentials.email }).select('+password')
           
           if (!user) {
+            console.log('Auth: User not found')
             return null
           }
 
+          console.log('Auth: User found, checking password...')
           const isPasswordValid = await user.comparePassword(credentials.password)
           
           if (!isPasswordValid) {
+            console.log('Auth: Invalid password')
             return null
           }
 
+          console.log('Auth: Authentication successful for user:', user.email)
           return {
             id: user._id.toString(),
             email: user.email,
