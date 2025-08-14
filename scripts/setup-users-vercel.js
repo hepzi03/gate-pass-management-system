@@ -2,8 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 // MongoDB Atlas connection string - replace with your actual connection string
-const MONGODB_URI = 'mongodb+srv://gatepass-admin:qwerty12345@gatepass-management.lk0agsu.mongodb.net/gate-pass-system?retryWrites=true&w=majority&appName=Gatepass-management';
-
+const MONGODB_URI = 'mongodb+srv://'
 // User schemas (simplified versions)
 const userSchema = new mongoose.Schema({
   name: String,

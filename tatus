@@ -1,0 +1,3 @@
+[33ma837ba0[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Fix: TypeScript error in database connection by ensuring MONGODB_URI is properly typed
+[33mcc7b359[m Update: MongoDB Atlas connection string and create initial users successfully
+[33md7f4112[m Add: Better error logging and test DB route for debugging authentication issues
